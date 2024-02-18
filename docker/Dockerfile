@@ -1,9 +1,10 @@
 # Use the official Node.js 18 as a parent image
-FROM node:20
+FROM node:18
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
-
+# Bundle app source inside the Docker image
+COPY . .
 # Copy package.json and yarn.lock to the working directory
 COPY ./package.json ./
 COPY ./yarn.lock ./
@@ -11,8 +12,7 @@ COPY ./yarn.lock ./
 # Install dependencies
 RUN yarn install
 
-# Bundle app source inside the Docker image
-COPY . .
+
 
 # Your app binds to port 3000 so you'll use the EXPOSE instruction to have it mapped by the docker daemon
 EXPOSE 3000

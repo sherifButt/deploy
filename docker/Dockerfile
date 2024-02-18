@@ -1,11 +1,11 @@
 # Use the official Node.js 18 as a parent image
-FROM node:18
+FROM node:20
 
 # Set the working directory in the container
 WORKDIR /usr/src/app
 
 # Copy package.json and yarn.lock to the working directory
-COPY package.json yarn.lock ./
+COPY ../../package.json ../../yarn.lock ./
 
 # Install dependencies
 RUN yarn install

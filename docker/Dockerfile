@@ -6,8 +6,8 @@ FROM node:18
 COPY . .
 
 #Copy package.json and yarn.lock to the working directory
-COPY ./package.json ./
-COPY ./yarn.lock ./
+COPY /package.json ./
+COPY /yarn.lock ./
 
 #Set the working directory in the container
 WORKDIR /usr/src/app

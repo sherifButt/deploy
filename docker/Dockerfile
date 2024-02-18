@@ -1,17 +1,17 @@
 # Use the official Node.js 18 as a parent image
 FROM node:18
-
+RUN ls
 
 # Bundle app source inside the Docker image
 COPY . .
-
+RUN ls
 #Copy package.json and yarn.lock to the working directory
-COPY /package.json ./
-COPY /yarn.lock ./
+COPY package.json ./
+COPY yarn.lock ./
 
 #Set the working directory in the container
 WORKDIR /usr/src/app
-
+RUN ls
 # Install dependencies
 RUN yarn install
 

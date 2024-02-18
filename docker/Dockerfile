@@ -5,13 +5,13 @@ FROM node:18
 WORKDIR /usr/src/app
 
 # Copy package.json and yarn.lock to the working directory
-COPY ../package.json ../yarn.lock ./
+COPY package.json yarn.lock ./
 
 # Install dependencies
 RUN yarn install
 
 # Bundle app source inside the Docker image
-COPY ../ ./
+COPY . .
 
 # Your app binds to port 3000 so you'll use the EXPOSE instruction to have it mapped by the docker daemon
 EXPOSE 3000

@@ -68,8 +68,8 @@ app.post('/deploy', async (req, res) => {
   });
     
     // Place the Docker deployment command here
-    const storageLocation =  path.resolve(`${APP_CONTAINER_NAME}/${companyName}`);
-    const defaultStorageLocation = path.resolve(`${APP_CONTAINER_NAME}/default`);
+    const storageLocation =  `./${APP_CONTAINER_NAME}/${companyName}`;
+    const defaultStorageLocation = `./${APP_CONTAINER_NAME}/default`;
     const dockerCommand = `
     mkdir -p "${storageLocation}" && \
     cp -r "${defaultStorageLocation}/." "${storageLocation}" && \

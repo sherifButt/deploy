@@ -38,4 +38,4 @@ RUN apt-get update && apt-get install -y docker-ce-cli
 
 # Define the command to run your app using CMD which defines your runtime
 # Adjust the CMD if your app.js is located in a different path
-CMD [ "node", "app.js" ]
+CMD [ "node", "src/app/app.js" ]

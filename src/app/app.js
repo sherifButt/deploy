@@ -9,6 +9,7 @@ app.use(express.json());
 const ALLOWED_CONTAINERS_COUNT = process.env.ALLOWED_CONTAINERS_COUNT || 5;
 const APP_CONTAINER_NAME = process.env.APP_CONTAINER_NAME || "anythingllm";
 const SERVER_PORT = process.env.SERVER_PORT || 3000;
+const APP_IMAGE_NAME = process.env.APP_IMAGE_NAME || "mintplexlabs/anythingllm:master";
 
 // Digital Ocean API client configuration
 // const api = axios.create({
@@ -66,19 +67,13 @@ app.post('/deploy', async (req, res) => {
   });
     
     // Place the Docker deployment command here
-    const storageLocation = `./${APP_CONTAINER_NAME}/${companyName}`;
+    const storageLocation = `$HOME/${APP_CONTAINER_NAME}/${companyName}`;
     const dockerCommand = `
     export STORAGE_LOCATION="${storageLocation}" && \
     mkdir -p $STORAGE_LOCATION && \
-    cp -r "./${APP_CONTAINER_NAME}/default/." "$STORAGE_LOCATION/" && \
-    docker run -d -p ${port}:3001 \
-    --cap-add SYS_ADMIN \
-    --restart=always \
-    --name ${companyName} \
-    -v ${storageLocation}:/app/server/storage \
-    -v ${storageLocation}/.env:/app/server/.env \
-    -e STORAGE_DIR="/app/server/storage" \
-    ${process.env.APP_IMAGE_NAME}`;
+    cp -r "$HOME/${APP_CONTAINER_NAME}/default/." "$STORAGE_LOCATION" && \
+    chmod -R u+rwX,go+rX,go-w $STORAGE_LOCATION && \ 
+    docker run -d -p ${port}:3001 --cap-add SYS_ADMIN --restart=always --name ${companyName} -v "${storageLocation}" : "/app/server/storage" -v ${storageLocation}/.env : /app/server/.env -e STORAGE_DIR="/app/server/storage" ${APP_IMAGE_NAME}`;
 
     exec(dockerCommand, (error, stdout, stderr) => {
       if (error) {

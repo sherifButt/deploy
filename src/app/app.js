@@ -46,24 +46,27 @@ app.post('/deploy', async (req, res) => {
     //   return res.status(500).json({ error: 'Failed to create DNS record.' });
     // }
 
+    // get this server's IP address
+    const ip = await axios.get('https://api.ipify.org?format=json');
+    
     // Place the Docker deployment command here
-    const storageLocation = `./${process.env.APP_CONTAINER_NAME||"anythingllm"}/${companyName}`;
+    const storageLocation = `./${process.env.APP_CONTAINER_NAME || "anythingllm"}/${companyName}`;
     const dockerCommand = `
     export STORAGE_LOCATION="${storageLocation}" && \
     mkdir -p $STORAGE_LOCATION && \
     touch "$STORAGE_LOCATION/.env" && \
-    cp -r "./${process.env.APP_CONTAINER_NAME||"anythingllm"}/default/." "$STORAGE_LOCATION/"`
+    cp -r "./${process.env.APP_CONTAINER_NAME || "anythingllm"}/default/." "$STORAGE_LOCATION/"`
     //&& docker run -d -p ${port}:${port} --cap-add SYS_ADMIN --restart=always -v ${storageLocation}:/app/server/storage -v ${storageLocation}/.env:/app/server/.env -e STORAGE_DIR="/app/server/storage" ${process.env.APP_IMAGE_NAME}`;
 
     exec(dockerCommand, (error, stdout, stderr) => {
       if (error) {
         console.error(`exec error: ${error}`);
-        return res.status(500).json({ error: 'Deployment failed' });
+        return res.status(500).json({ error: `Deployment failed [${error}]` });
       }
       console.log(`stdout: ${stdout}`);
       console.error(`stderr: ${stderr}`);
       // Respond only after the exec command completes
-      res.json({ message: 'Deployment succeeded', port: port, subdomain: fullDomain });
+      res.json({ message: 'Deployment succeeded', port: port, subdomain: fullDomain, ip: `http://${ip.data.ip}:${port}` });
     });
 
   } catch (error) {
@@ -81,3 +84,4 @@ function sanitizeCompanyName(companyName) {
   // Sanitize to allow alphanumeric, hyphens, and underscores
   return companyName.replace(/[^a-zA-Z0-9-_]/g, '').toLowerCase();
 }
+

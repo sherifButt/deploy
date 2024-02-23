@@ -6,6 +6,9 @@ require('dotenv').config();
 
 const app = express();
 app.use(express.json());
+const ALLOWED_CONTAINERS_COUNT = process.env.ALLOWED_CONTAINERS_COUNT || 5;
+const APP_CONTAINER_NAME = process.env.APP_CONTAINER_NAME || "anythingllm";
+const SERVER_PORT = process.env.SERVER_PORT || 3000;
 
 // Digital Ocean API client configuration
 // const api = axios.create({
@@ -48,13 +51,26 @@ app.post('/deploy', async (req, res) => {
 
     // get this server's IP address
     const ip = await axios.get('https://api.ipify.org?format=json');
+
+    // check how many containers are running
+    let containerCount = 0;
+    exec('docker ps -q | wc -l', (error, stdout, stderr) => {
+      if (error) {
+          console.error(`exec error: ${error}`);
+          return res.status(500).json({ error: 'Failed to retrieve container count' });
+      }
+       containerCount = parseInt(stdout.trim(), 10);
+      if (containerCount >= ALLOWED_CONTAINERS_COUNT) {
+          return res.status(400).json({ error: `Too many containers running [${containerCount}/${ALLOWED_CONTAINERS_COUNT}]` });
+      }
+  });
     
     // Place the Docker deployment command here
-    const storageLocation = `./${process.env.APP_CONTAINER_NAME || "anythingllm"}/${companyName}`;
+    const storageLocation = `./${APP_CONTAINER_NAME}/${companyName}`;
     const dockerCommand = `
     export STORAGE_LOCATION="${storageLocation}" && \
     mkdir -p $STORAGE_LOCATION && \
-    cp -r "./${process.env.APP_CONTAINER_NAME || "anythingllm"}/default/." "$STORAGE_LOCATION/" && \
+    cp -r "./${APP_CONTAINER_NAME}/default/." "$STORAGE_LOCATION/" && \
     docker run -d -p ${port}:3001 \
     --cap-add SYS_ADMIN \
     --restart=always \
@@ -72,7 +88,7 @@ app.post('/deploy', async (req, res) => {
       console.log(`stdout: ${stdout}`);
       console.error(`stderr: ${stderr}`);
       // Respond only after the exec command completes
-      res.json({ message: 'Deployment succeeded', port: port, subdomain: fullDomain, ip: `http://${ip.data.ip}:${port}` });
+      res.json({ message: 'Deployment succeeded', port: port, subdomain: fullDomain, ip: `http://${ip.data.ip}:${port}` ,containerCount: `[${containerCount}/${ALLOWED_CONTAINERS_COUNT}]`});
     });
 
   } catch (error) {
@@ -81,9 +97,9 @@ app.post('/deploy', async (req, res) => {
   }
 });
 
-const serverPort = process.env.SERVER_PORT || 3000;
+
 app.listen(serverPort, () => {
-  console.log(`Server listening at http://localhost:${serverPort}`);
+  console.log(`Server listening at http://localhost:${SERVER_PORT}`);
 });
 
 function sanitizeCompanyName(companyName) {

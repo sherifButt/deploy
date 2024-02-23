@@ -55,8 +55,14 @@ app.post('/deploy', async (req, res) => {
     export STORAGE_LOCATION="${storageLocation}" && \
     mkdir -p $STORAGE_LOCATION && \
     touch "$STORAGE_LOCATION/.env" && \
-    cp -r "./${process.env.APP_CONTAINER_NAME || "anythingllm"}/default/." "$STORAGE_LOCATION/"`
-    //&& docker run -d -p ${port}:${port} --cap-add SYS_ADMIN --restart=always -v ${storageLocation}:/app/server/storage -v ${storageLocation}/.env:/app/server/.env -e STORAGE_DIR="/app/server/storage" ${process.env.APP_IMAGE_NAME}`;
+    cp -r "./${process.env.APP_CONTAINER_NAME || "anythingllm"}/default/." "$STORAGE_LOCATION/" && \
+    docker run -d -p ${port}:$3001 \
+    --cap-add SYS_ADMIN \
+    --restart=always \
+    -v ${storageLocation}:/app/server/storage \
+    -v ${storageLocation}/.env:/app/server/.env \
+    -e STORAGE_DIR="/app/server/storage" \
+    ${process.env.APP_IMAGE_NAME}`;
 
     exec(dockerCommand, (error, stdout, stderr) => {
       if (error) {

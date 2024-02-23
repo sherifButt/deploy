@@ -54,7 +54,6 @@ app.post('/deploy', async (req, res) => {
     const dockerCommand = `
     export STORAGE_LOCATION="${storageLocation}" && \
     mkdir -p $STORAGE_LOCATION && \
-    touch "$STORAGE_LOCATION/.env" && \
     cp -r "./${process.env.APP_CONTAINER_NAME || "anythingllm"}/default/." "$STORAGE_LOCATION/" && \
     docker run -d -p ${port}:3001 \
     --cap-add SYS_ADMIN \

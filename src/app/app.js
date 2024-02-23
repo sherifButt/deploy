@@ -58,6 +58,7 @@ app.post('/deploy', async (req, res) => {
     docker run -d -p ${port}:3001 \
     --cap-add SYS_ADMIN \
     --restart=always \
+    --name ${companyName} \
     -v ${storageLocation}:/app/server/storage \
     -v ${storageLocation}/.env:/app/server/.env \
     -e STORAGE_DIR="/app/server/storage" \

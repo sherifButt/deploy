@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const { exec } = require('child_process');
 const axios = require('axios');
 require('dotenv').config();
@@ -67,14 +68,13 @@ app.post('/deploy', async (req, res) => {
   });
     
     // Place the Docker deployment command here
-    const storageLocation = `$HOME/${APP_CONTAINER_NAME}/${companyName}`;
+    const storageLocation =  path.resolve(`${APP_CONTAINER_NAME}/${companyName}`);
+    const defaultStorageLocation = path.resolve(`${APP_CONTAINER_NAME}/default`);
     const dockerCommand = `
-    export STORAGE_LOCATION="${storageLocation}" && \
-    mkdir -p $STORAGE_LOCATION && \
-    cp -r "$HOME/${APP_CONTAINER_NAME}/default/." "$STORAGE_LOCATION" && \
-    chmod -R u+rwX,go+rX,go-w $STORAGE_LOCATION && \ 
-    docker run -d -p ${port}:3001 --cap-add SYS_ADMIN --restart=always --name ${companyName} -v "${storageLocation}" : "/app/server/storage" -v ${storageLocation}/.env : /app/server/.env -e STORAGE_DIR="/app/server/storage" ${APP_IMAGE_NAME}`;
-
+    mkdir -p "${storageLocation}" && \
+    cp -r "${defaultStorageLocation}/." "${storageLocation}" && \
+    chmod -R u+rwX,go+rX,go-w "${storageLocation}" && \
+    docker run -d -p ${port}:3001 --cap-add SYS_ADMIN --restart=always --name ${companyName} -v "${storageLocation}:/app/server/storage" -v "${storageLocation}/.env:/app/server/.env" -e STORAGE_DIR="/app/server/storage" ${APP_IMAGE_NAME}`;
     exec(dockerCommand, (error, stdout, stderr) => {
       if (error) {
         console.error(`exec error: ${error}`);

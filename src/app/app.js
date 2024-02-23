@@ -98,7 +98,7 @@ app.post('/deploy', async (req, res) => {
 });
 
 
-app.listen(serverPort, () => {
+app.listen(SERVER_PORT, () => {
   console.log(`Server listening at http://localhost:${SERVER_PORT}`);
 });
 
